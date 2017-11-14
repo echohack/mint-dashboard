@@ -2,12 +2,14 @@
   <div id="app">
     <h1>Latest Commits</h1>
     <template v-for="branch in branches">
-      <input type="radio"
-        :id="branch"
-        :value="branch"
-        name="branch"
-        v-model="currentBranch">
-      <label :for="branch">{{ branch }}</label>
+      <template v-for="name in branch">
+        <input type="radio"
+          :id="branch.name"
+          :value="branch.name"
+          name="branch"
+          v-model="currentBranch">
+        <label :for="branch">{{ branch.name }}</label>
+     </template>
     </template>
     <p>commits@{{ currentBranch }}</p>
     <ul>
@@ -22,12 +24,13 @@
 </template>
 
 <script>
-var apiURL = 'https://api.github.com/repos/echohack/sample-node-app/commits?per_page=10&sha='
+//  717fS7TC2Kok21shE9VB
+var apiURL = 'http://mintgitlab.syngentaaws.org/api/v4/projects/14/repository/branches/'
 
 module.exports = {
   data: function () {
     return {
-      branches: ['master', 'dev'],
+      branches: 'master',
       currentBranch: 'master',
       commits: null
     }
@@ -55,10 +58,10 @@ module.exports = {
     fetchData: function () {
       var xhr = new XMLHttpRequest()
       var self = this
-      xhr.open('GET', apiURL + self.currentBranch)
+      xhr.open('GET', apiURL)
+      xhr.setRequestHeader('PRIVATE-TOKEN', '717fS7TC2Kok21shE9VB')
       xhr.onload = function () {
-        self.commits = JSON.parse(xhr.responseText)
-        console.log(self.commits[0].html_url)
+        self.branches = JSON.parse(xhr.responseText)
       }
       xhr.send()
     }
