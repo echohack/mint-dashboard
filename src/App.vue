@@ -1,17 +1,15 @@
 <template>
   <div id="app">
     <h1>Latest Commits</h1>
-    <template v-for="branch in branches">
-      <template v-for="name in branch">
-        <input type="radio"
-          :id="branch.name"
-          :value="branch.name"
-          name="branch"
-          v-model="currentBranch">
-        <label :for="branch">{{ branch.name }}</label>
-     </template>
-    </template>
+    <div>
+      <b-dropdown variant="primary" id="ddown1" text="Dropdown Button" class="m-md-2">
+        <template v-for="branch in branches">
+          <b-dropdown-item>{{ branch.name }}</b-dropdown-item>
+        </template>
+      </b-dropdown>
+    </div>
     <p>commits@{{ currentBranch }}</p>
+    // need to hook in commits
     <ul>
       <li v-for="record in commits">
         <a :href="record.html_url" target="_blank" class="commit">{{ record.sha.slice(0, 7) }}</a>
@@ -24,13 +22,12 @@
 </template>
 
 <script>
-//  717fS7TC2Kok21shE9VB
 var apiURL = 'http://mintgitlab.syngentaaws.org/api/v4/projects/14/repository/branches/'
 
 module.exports = {
   data: function () {
     return {
-      branches: 'master',
+      branches: [{name: 'master'}],
       currentBranch: 'master',
       commits: null
     }
