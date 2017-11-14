@@ -25,7 +25,7 @@
 var apiURL = 'https://api.github.com/repos/echohack/sample-node-app/commits?per_page=10&sha='
 
 module.exports = {
-  data: function() {
+  data: function () {
     return {
       branches: ['master', 'dev'],
       currentBranch: 'master',
