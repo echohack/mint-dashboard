@@ -10,12 +10,14 @@
     </div>
     <p>commits@{{ currentBranch }}</p>
     <ul>
+      <div class="pre-scrollable">
       <li v-for="record in commits">
         <a v-bind:href="'http://mintgitlab.syngentaaws.org/mint/material/commits/' + record.id" class="commit">{{ record.id.slice(0, 7) }}</a>
         - <span class="message">{{ record.message | truncate }}</span><br>
         by <span class="author"><a :href="record.author_name" target="_blank">{{ record.author_name }}</a></span>
         at <span class="date">{{ record.committed_date | formatDate }}</span>
       </li>
+      </div>
     </ul>
   </div>
 </template>
