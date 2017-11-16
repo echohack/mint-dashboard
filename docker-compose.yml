@@ -1,0 +1,10 @@
+version: '2'
+services:
+  mint-dashboard:
+    image: echohack/mint-dashboard
+    command: --strategy at-once --channel unstable
+    ports:
+      - 8000:8000
+      - 9631:9631
+      - 3000:3000
+
