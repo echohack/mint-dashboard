@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div class="tagging col-6">
-      <b-form-select v-model="selected" default=0 class="m-md-2" v-bind:onchange="this.getDiff()">
+      <b-form-select v-model="selected" default=0 class="m-md-2" onchange="getDiff()">
         <option :value="0" disabled>-- Please select an option --</option>
         <template v-for="item in tags">
           <option :value=item.name :id="'id_' + item.name">{{ item.name }}</option>
@@ -96,24 +96,6 @@ module.exports = {
       }
       xhr.send()
     },
-    getDiff: function () {
-      if (this.selected === 0) {
-        return
-      }
-      var xhr = new XMLHttpRequest()
-      var self = this
-      console.log(this.selected)
-      console.log('Release the diff')
-      xhr.open('GET', getDiffUrl + 'from=' + this.selected + '&to=master')
-      xhr.setRequestHeader('PRIVATE-TOKEN', '717fS7TC2Kok21shE9VB')
-      xhr.onload = function () {
-        self.diffs = JSON.parse(xhr.responseText)
-        // var response = JSON.parse(xhr.responseText)
-        // self.diffs = response.commits
-        console.log(self.diffs)
-      }
-      xhr.send()
-    },
     getTags: function () {
       var xhr = new XMLHttpRequest()
       var self = this
@@ -127,6 +109,24 @@ module.exports = {
       xhr.send()
     }
   }
+}
+function getDiff () {
+  if (this.selected === 0) {
+    return
+  }
+  var xhr = new XMLHttpRequest()
+  var self = this
+  console.log(this.selected)
+  console.log('Release the diff')
+  xhr.open('GET', getDiffUrl + 'from=' + this.selected + '&to=master')
+  xhr.setRequestHeader('PRIVATE-TOKEN', '717fS7TC2Kok21shE9VB')
+  xhr.onload = function () {
+    self.diffs = JSON.parse(xhr.responseText)
+    // var response = JSON.parse(xhr.responseText)
+    // self.diffs = response.commits
+    console.log(self.diffs)
+  }
+  xhr.send()
 }
 </script>
 <style>
