@@ -1,19 +1,32 @@
 <template>
   <div id="app">
-    <h1>Latest Commits</h1>
-    <div>
-      <b-dropdown variant="primary" id="ddown1" text="Dropdown Button" class="m-md-2 btn-sm">
-        <template v-for="branch in branches">
-          <b-dropdown-item>{{ branch.name }}</b-dropdown-item>
+    <div class="tagging col-6">
+      <b-form-select v-model="selected" default=0 class="m-md-2" onchange="getDiff()">
+        <option :value="0" disabled>-- Please select an option --</option>
+        <template v-for="item in tags">
+          <option :value=item.name :id="'id_' + item.name">{{ item.name }}</option>
         </template>
-      </b-dropdown>
+      </b-form-select>
     </div>
+
+    <p hidden id="selDiff">{{ selected }}</p>
+    <ul>
+        <div class="commits">
+          <li v-for="diff in diffs">
+            <a v-bind:href="'http://mintgitlab.syngentaaws.org/mint/material/commits/' + diff.short_id" class="commit">{{ diff.short_id }}</a>
+            - <span class="message">{{ diff.title }}</span><br> <span class="message">{{ diff.message }}</span><br>
+            by <span class="author"><a :href="diff.author_name" target="_blank">{{ diff.author_name }}</a></span>
+            at <span class="date">{{ diff.committed_date }}</span>
+          </li>
+        </div>
+      </ul>
+    <h1>Latest Commits</h1>
     <p>commits@{{ currentBranch }}</p>
     <ul>
-      <div class="pre-scrollable">
+      <div class="commits">
       <li v-for="record in commits">
         <a v-bind:href="'http://mintgitlab.syngentaaws.org/mint/material/commits/' + record.id" class="commit">{{ record.id.slice(0, 7) }}</a>
-        - <span class="message">{{ record.message | truncate }}</span><br>
+        - <span class="message">{{ record.message }}</span><br>
         by <span class="author"><a :href="record.author_name" target="_blank">{{ record.author_name }}</a></span>
         at <span class="date">{{ record.committed_date | formatDate }}</span>
       </li>
@@ -25,22 +38,28 @@
 <script>
 var apiURL = 'http://mintgitlab.syngentaaws.org/api/v4/projects/14/repository/branches/'
 var api2Url = 'http://mintgitlab.syngentaaws.org/api/v4//projects/14/repository/commits?ref_name=master'
+var getDiffUrl = 'http://mintgitlab.syngentaaws.org/api/v4//projects/14/repository/compare?'
+var getTagsUrl = 'http://mintgitlab.syngentaaws.org/api/v4//projects/14/repository/tags'
+
 module.exports = {
   data: function () {
     return {
       branches: [{name: 'master'}],
       currentBranch: 'master',
-      commits: null
+      commits: null,
+      selected: 0,
+      tags: null,
+      diffs: null
     }
   },
 
   created: function () {
     this.fetchData()
     this.getCommits()
+    this.getTags()
   },
 
   watch: {
-    currentBranch: 'getCommits("master")'
   },
 
   filters: {
@@ -49,7 +68,7 @@ module.exports = {
       return newline > 0 ? v.slice(0, newline) : v
     },
     formatDate: function (v) {
-      return v.replace(/[T]/g, ' ')
+      return v.replace(/[T]/, ' ')
     }
   },
 
@@ -73,16 +92,49 @@ module.exports = {
       xhr.setRequestHeader('PRIVATE-TOKEN', '717fS7TC2Kok21shE9VB')
       xhr.onload = function () {
         console.log(JSON.parse(xhr.responseText))
-        self.commits = JSON.parse(xhr.responseText)
+        self.commits = JSON.parse(xhr.responseText).slice(0, 4)
+      }
+      xhr.send()
+    },
+    getTags: function () {
+      var xhr = new XMLHttpRequest()
+      var self = this
+      console.log('Release the gitlab')
+      xhr.open('GET', getTagsUrl)
+      xhr.setRequestHeader('PRIVATE-TOKEN', '717fS7TC2Kok21shE9VB')
+      xhr.onload = function () {
+        console.log(JSON.parse(xhr.responseText))
+        self.tags = JSON.parse(xhr.responseText)
       }
       xhr.send()
     }
   }
 }
+function getDiff () {
+  if (this.selected === 0) {
+    return
+  }
+  var xhr = new XMLHttpRequest()
+  var self = this
+  console.log(this.selected)
+  console.log('Release the diff')
+  xhr.open('GET', getDiffUrl + 'from=' + this.selected + '&to=master')
+  xhr.setRequestHeader('PRIVATE-TOKEN', '717fS7TC2Kok21shE9VB')
+  xhr.onload = function () {
+    self.diffs = JSON.parse(xhr.responseText)
+    // var response = JSON.parse(xhr.responseText)
+    // self.diffs = response.commits
+    console.log(self.diffs)
+  }
+  xhr.send()
+}
 </script>
 <style>
   #app {
     font-family: 'Helvetica', Arial, sans-serif;
+  }
+  div {
+    padding:5px;
   }
   a {
     text-decoration: none;
@@ -95,11 +147,17 @@ module.exports = {
   .author, .date {
     font-weight: bold;
   }
-  .scrollable {
-    height: auto;
-    width:100px;
-    max-height: 200px;
-    overflow-x: hidden;
+  .commits {
+    font-size:12px;
+  }
+  th {
+    padding:5px;
+    text-align:center;
+  }
+  td {
+    column-width: max-content;
+    padding:5px;
+    text-align:center;
   }
 </style>
 
